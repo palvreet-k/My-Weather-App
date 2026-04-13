@@ -24,9 +24,9 @@ export default function DisplayWeather() {
 
     useEffect(() => {
         if (ignoreEffect) {
-        setIgnoreEffect(false);
-        return;
-    }
+            setIgnoreEffect(false);
+            return;
+        }
         if (city.length < 3) {
             setSuggestion([]);
             return;
@@ -58,9 +58,9 @@ export default function DisplayWeather() {
 
         try {
             setSuggestion([]);
-            setIgnoreEffect(true);  
+            setIgnoreEffect(true);
             setLoading(true);
-            setWeather(null); 
+            setWeather(null);
             const response = await fetch(WEATHER_URL(city.lat, city.lon));
             if (!response.ok) {
                 throw new Error("There was a problem fetching weather, Try again")
@@ -86,10 +86,10 @@ export default function DisplayWeather() {
     return (
         <>
             <CssBaseline />
-            <h1 htmlFor="filled-basic">Search for a city</h1>
+            <Typography variant="h4" component="h1" sx={{ textAlign: 'center', mb: 2 }}>Weather App</Typography>
             <Box sx={{ display: 'flex', gap: 1 }}>
                 <SearchIcon fontSize='large' />
-                <TextField id="filled-basic" variant="filled" size="" fullWidth value={city}
+                <TextField id="filled-basic" label="Search for a city" variant="filled" size="" fullWidth value={city}
                     onChange={(e) => setCity(e.target.value)} />
             </Box>
 
@@ -108,10 +108,10 @@ export default function DisplayWeather() {
                 </List>
             )}
             {loading && (
-                                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
-                                    <CircularProgress />
-                                </Box>
-                            )}
+                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+                    <CircularProgress />
+                </Box>
+            )}
 
             {!loading && weather && (
                 <Container maxWidth="lg">

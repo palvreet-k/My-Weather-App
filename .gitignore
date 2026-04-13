@@ -8,6 +8,9 @@
 *.suo
 *.user
 *.userosscache
+
+# Playwright MCP files
+.playwright-mcp/
 *.sln.docstates
 *.env
 

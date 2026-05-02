@@ -6,7 +6,7 @@ export default function App() {
   return (
       <Routes>
         <Route path="/" element={<DisplayWeather />} />
-        {/* <Route path="/forecast" element={<DisplayForecast />} /> */}
+        <Route path="/forecast" element={<DisplayForecast />} />
       </Routes>
   );
 }

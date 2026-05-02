@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { CircularProgress, Box, Card, CardActions, CardContent, CardMedia, Button, Typography, List, ListItem, ListItemIcon, ListItemText, ListItemButton, TextField, CssBaseline } from '@mui/material';
+import { CircularProgress, Box, Card, CardActions, CardContent, CardMedia, Button, Typography, List, ListItem, ListItemIcon, ListItemText, ListItemButton, TextField, CssBaseline, Switch, FormControlLabel } from '@mui/material';
 import { CardHeader, Container } from '@mui/material';
 import ThermostatIcon from '@mui/icons-material/Thermostat';
 import WindPowerOutlinedIcon from '@mui/icons-material/WindPowerOutlined';
@@ -10,19 +10,22 @@ import { useNavigate } from 'react-router-dom';
 
 const apiKey = import.meta.env.VITE_WEATHER_API_KEY;
 const CITY_URL = (city) => `http://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=5&appid=${apiKey}`
-const WEATHER_URL = (lat, lon) => `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`
+const WEATHER_URL = (lat, lon, units) => `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=${units}&appid=${apiKey}`
 
 export default function DisplayWeather() {
-    const [city, setCity] = useState("Toronto");
+    const [city, setCity] = useState('');
     const [weather, setWeather] = useState(null);
     const [suggestion, setSuggestion] = useState([]);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
     const [ignoreEffect, setIgnoreEffect] = useState(false);
+    const [isCelsius, setIsCelsius] = useState(true);
     const navigate = useNavigate();
 
 
     useEffect(() => {
+        // This effect triggers whenever the 'city' state changes at >3 characters.
+        // ignoreEffect is used to prevent the suggestion fetching to keep running after we select the city from list
         if (ignoreEffect) {
             setIgnoreEffect(false);
             return;
@@ -31,6 +34,8 @@ export default function DisplayWeather() {
             setSuggestion([]);
             return;
         }
+
+        // Fetch city suggestions once user inputs more than 3 chars in search
         async function autofillCity() {
             try {
                 setLoading(true);
@@ -53,15 +58,17 @@ export default function DisplayWeather() {
 
     }, [city]);
 
+    // Fetch weather after user selects a city name from suggestion list
 
-    async function handleSearch(city) {
+    async function fetchWeatherOnCitySelect(city) {
 
         try {
             setSuggestion([]);
             setIgnoreEffect(true);
             setLoading(true);
             setWeather(null);
-            const response = await fetch(WEATHER_URL(city.lat, city.lon));
+            const units = isCelsius ? 'metric' : 'imperial';
+            const response = await fetch(WEATHER_URL(city.lat, city.lon, units));
             if (!response.ok) {
                 throw new Error("There was a problem fetching weather, Try again")
             }
@@ -76,6 +83,28 @@ export default function DisplayWeather() {
             setLoading(false);
         }
     }
+
+    // Fetch weather again when user toggles between Celsius and Fahrenheit
+
+    async function fetchWeather({ lat, lon }) {
+        try {
+            const units = isCelsius ? 'metric' : 'imperial';
+            const response = await fetch(WEATHER_URL(lat, lon, units));
+            if (!response.ok) {
+                throw new Error("There was a problem fetching weather, Try again");
+            }
+            const data = await response.json();
+            setWeather(data);
+        } catch (err) {
+            setError(err.message);
+        }
+    }
+    useEffect(() => {
+        if (weather) {
+            fetchWeather(weather.coord);
+        }
+    }, [isCelsius]);
+
 
     if (error) {
         return <p>{error}</p>
@@ -97,7 +126,7 @@ export default function DisplayWeather() {
                 <List >
                     {suggestion.map((selectCity) => (
                         <ListItem key={selectCity.lat + selectCity.lon}>
-                            <ListItemButton onClick={() => handleSearch(selectCity)}>
+                            <ListItemButton onClick={() => fetchWeatherOnCitySelect(selectCity)}>
                                 <ListItemText
                                     primary={` ${selectCity.name} ${selectCity.state ? `, ${selectCity.state}` : ""} , ${selectCity.country}`}
                                 />
@@ -134,13 +163,19 @@ export default function DisplayWeather() {
                                 title="weather"
                             />
                             <CardContent>
+                                <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2 }}>
+                                    <FormControlLabel
+                                        control={<Switch checked={isCelsius} onChange={(e) => setIsCelsius(e.target.checked)} />}
+                                        label={`${isCelsius ? '°C' : '°F'}`}
+                                    />
+                                </Box>
                                 <List>
                                     <ListItem>
                                         <ListItemIcon>
                                             <ThermostatIcon />
                                         </ListItemIcon>
                                         <ListItemText
-                                            primary={`Temperature : ${weather?.main?.temp} °C`}
+                                            primary={`Temperature : ${weather?.main?.temp} ${isCelsius ? '°C' : '°F'}`}
                                         />
                                     </ListItem>
                                     <ListItem>
@@ -156,7 +191,7 @@ export default function DisplayWeather() {
                                             <WindPowerOutlinedIcon />
                                         </ListItemIcon>
                                         <ListItemText
-                                            primary={`Wind Speed: ${weather?.wind?.speed}`}
+                                            primary={`Wind Speed: ${weather?.wind?.speed} ${isCelsius ? 'm/s' : 'mph'}`}
                                         />
                                     </ListItem>
                                     <ListItem>
@@ -164,16 +199,18 @@ export default function DisplayWeather() {
                                             <MoodIcon />
                                         </ListItemIcon>
                                         <ListItemText
-                                            primary={`Feels Like: ${weather?.main?.feels_like} °C`}
+                                            primary={`Feels Like: ${weather?.main?.feels_like} ${isCelsius ? '°C' : '°F'}`}
                                         />
                                     </ListItem>
                                 </List>
                             </CardContent>
-                            {/* <CardActions>
+                            <CardActions>
                                 <Button size="small"
-                                >See next 5 Days Forecast
+                                    onClick={() => navigate('/forecast', { state: { city: weather?.name } })} // pass city to forecast page
+                                >
+                                    See next 5 Days Forecast
                                 </Button>
-                            </CardActions> */}
+                            </CardActions>
                         </Card>
 
                     </Box>

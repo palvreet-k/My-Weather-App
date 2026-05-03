@@ -9,7 +9,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import { useNavigate } from 'react-router-dom';
 
 const apiKey = import.meta.env.VITE_WEATHER_API_KEY;
-const CITY_URL = (city) => `http://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=5&appid=${apiKey}`
+const CITY_URL = (city) => `https://api.openweathermap.org/geo/1.0/direct?q=${city}&limit=5&appid=${apiKey}`
 const WEATHER_URL = (lat, lon, units) => `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=${units}&appid=${apiKey}`
 
 export default function DisplayWeather() {

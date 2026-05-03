@@ -6,7 +6,10 @@ A simple React-based weather application that allows users to search for cities 
 
 - Search for cities with autocomplete suggestions
 - Display current weather including temperature, humidity, wind speed, and "feels like" temperature
+- Switch Temperature units between °C and F
+- Weather Forecast for next 5 days for same location
 - Responsive design using Material-UI
+- 
 
 ## Installation
 

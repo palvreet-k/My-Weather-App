@@ -1,12 +1,16 @@
 # Weather App
 
-A simple React-based weather application that allows users to search for cities and view current weather conditions.
+A simple React-based weather application that allows users to search for cities and view current weather conditions by selecting a City.
+User can switch between Temperature uits and view 5 days Forecast.
 
 ## Features
 
 - Search for cities with autocomplete suggestions
 - Display current weather including temperature, humidity, wind speed, and "feels like" temperature
+- Switch Temperature units between °C and F
+- Weather Forecast for next 5 days for same location
 - Responsive design using Material-UI
+- 
 
 ## Installation
 
